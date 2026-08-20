@@ -8,8 +8,8 @@ Analyse erfolgt komplett im Hintergrund ohne Code-Sichtbarkeit für den Anwender
 import streamlit as st
 import pandas as pd
 from pathlib import Path
-from src.pipeline.extract import DataLoader
-from src.pipeline.cleaning import DataCleaner
+from data_pipeline.entsoe_loader import DataLoader
+from src.data_pipeline.cleaning import DataCleaner
 from src.ml.transform import DataTransformer
 from src.ml.train_model import ModelPipeline
 import matplotlib.pyplot as plt

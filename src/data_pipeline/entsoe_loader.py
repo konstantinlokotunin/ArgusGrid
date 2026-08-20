@@ -1,22 +1,20 @@
-
-
 """
-extract.py
-Liest Rohdaten zeilenweise über einen nativen Generator ein.
-Fehlerhafte Zeilen werden übersprungen, damit die Pipeline nicht abbricht.
+entsoe_loader.py
+Liest Stromdaten via API und streamt sie zeilenweise über einen nativen Generator.
+Fehlerhafte Zeilen werden übersprungen, damit die Datenpipeline nicht abbricht.
 """
 
 import logging
-import csv
-from pathlib import Path
-from typing import Generator
 import pandas as pd
-from .errors import InvalidFileFormat, DataValidationError
+from .errors import APIConnectionError, DataValidationError
+from entsoe import EntsoePandasClient
+from typing import Generator, Dict, Any
 
-logger = logging.getLogger("ESG-Data-Sentinel")
+# Nutzt den einheitlichen Projektnamen für das Logging
+logger = logging.getLogger("ArgusGrid")
 
-class DataLoader:
-    """Komponente zum zeilenweisen Einlesen von CSV-Dateien"""
+class ENTSO_E_Loader:
+    """Komponente zum zeilenweisen Streamen von Live-Stromdaten der ENTSO-E Transparency Plattform."""
 
     def __init__(self, file_path: Path):
         self.file_path = file_path
