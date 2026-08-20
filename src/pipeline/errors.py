@@ -1,10 +1,10 @@
 """
 errors.py
-Zentrale Sammlung anwendungsspezifischer Ausnahmen (Custom Exceptions).
+Zentrale Definition anwendungsspezifischer Ausnahmen (Custom Exceptions) für das ArgusGrid Projekt.
 """
 
-class PipelineError(Exception):
-    """Basis-Exception für das ESG Data Sentinel."""
+class ArgusGridError(Exception):
+    """Basis-Ausnahme für das gesamte Projekt."""
     def __init__(self, message: str):
         super().__init__(message)
         self.message = message
@@ -12,16 +12,10 @@ class PipelineError(Exception):
     def __str__(self) -> str:
         return self.message
 
-class InvalidFileFormat(PipelineError):
-    """Wird ausgelöst, wenn das Dateiformat kein CSV ist."""
+class APIConnectionError(ArgusGridError):
+    """Wird geworfen, wenn die REST-APIs von ENTSO-E/G nicht erreichbar sind."""
     pass
 
-
-class DataValidationError(PipelineError):
-    """Wird ausgelöst, wenn eine Zeile kritische Fehler aufweist."""
-    pass
-
-
-class EmptyDatasetError(PipelineError):
-    """Wird ausgelöst, wenn das Dataset nach der Filterung leer ist."""
+class DataValidationError(ArgusGridError):
+    """Wird geworfen, wenn Datenzeilen korrupt sind."""
     pass
