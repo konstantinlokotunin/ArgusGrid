@@ -16,7 +16,7 @@ logger = logging.getLogger("ArgusGrid")
 class ENTSO_E_Loader:
     """Komponente zum zeilenweisen Streamen von Live-Stromdaten der ENTSO-E Transparency Plattform."""
 
-    def __init__(self, api_key: str, country_code: str = '10Y1001A1001A82H'):
+    def __init__(self, api_key: str, country_code: str):
         self.client = EntsoePandasClient(api_key=api_key)
         self.country_code = country_code
 
@@ -47,8 +47,16 @@ class ENTSO_E_Loader:
         except Exception as e:
             raise APIConnectionError(f"Verbindung zur ENTSO-E Plattform fehlgeschlagen: {e}")
 
-        # Indexspalte (Zeitstempel) umbennen
-        df = df.reset_index().rename(columns={'index': 'timestamp'})
+        # 1. Spalten-Struktur eindeutig und flach machen
+        # Wir verbinden die Ebenen (z.B. "Fossil Gas" und "Actual Generation") zu "Fossil Gas_Actual Generation"
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = [f"{col[0]}_{col[1]}" if str(col[1]) != 'nan' else col[0] for col in df.columns]
+
+        # 2. Den Zeit-Index in eine saubere Spalte namens 'timestamp' umwandeln
+        df = df.rename_axis('timestamp').reset_index()
+        
+        # 3. Zeitzone entfernen oder in Text umwandeln, damit es beim JSON-Export nicht crasht
+        df['timestamp'] = df['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
 
         # Zeilenweise als Stream ausgeben (Lazy Evaluation)
         for record in df.to_dict(orient='records'):
